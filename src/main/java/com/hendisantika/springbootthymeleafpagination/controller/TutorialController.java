@@ -29,7 +29,7 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @Controller
-@RequestMapping("/tutorials")
+@RequestMapping("tutorials")
 @RequiredArgsConstructor
 public class TutorialController {
 
