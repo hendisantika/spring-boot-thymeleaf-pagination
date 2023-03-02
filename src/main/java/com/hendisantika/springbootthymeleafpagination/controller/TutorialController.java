@@ -38,7 +38,7 @@ public class TutorialController {
     @GetMapping
     public String getAllTutorials(Model model, @RequestParam(required = false) String keyword,
                                   @RequestParam(defaultValue = "1") int page,
-                                  @RequestParam(defaultValue = "3") int size) {
+                                  @RequestParam(defaultValue = "10") int size) {
         try {
             List<Tutorial> tutorials = new ArrayList<Tutorial>();
             Pageable paging = PageRequest.of(page - 1, size);

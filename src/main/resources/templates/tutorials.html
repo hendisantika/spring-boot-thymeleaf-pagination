@@ -32,24 +32,26 @@
   <div class="my-3">
     <form id="searchForm" th:action="@{/tutorials}">
       <div class="row d-flex">
-        <div class="col-md-6 mt-2">
+        <div class="col-md-4 mt-2">
           <div class="search">
             <i class="fa fa-search"></i>
-            <input class="form-control" id="keyword" name="keyword" placeholder="Enter keyword" required th:value="${keyword}"
+            <input class="form-control" id="keyword" name="keyword" placeholder="Enter keyword" required
+                   th:value="${keyword}"
                    type="search">
             <button class="btn btn-secondary" type="submit">Search</button>
           </div>
         </div>
-        <div class="col-md-3 input-group mt-2">
+        <div class="col-md-4 input-group mt-3">
           <div class="input-group-prepend">
             <label class="input-group-text" for="pageSize">Items per page:</label>
           </div>
           <select class="size-select" form="searchForm" id="pageSize" name="size" onchange="changePageSize()"
                   th:value="${pageSize}">
-            <option th:each="s : ${ {3, 6, 9} }" th:selected="${s == pageSize}" th:text="${s}" th:value="${s}"></option>
+            <option th:each="s : ${ {5, 10, 25} }" th:selected="${s == pageSize}" th:text="${s}"
+                    th:value="${s}"></option>
           </select>
         </div>
-        <div class="col-md-1 mt-2">
+        <div class="col-md-4 mt-2">
           <button class="btn btn-info" id="btnClear">Clear</button>
         </div>
       </div>
