@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0" name="viewport"/>
+    <title>Spring Boot Thymeleaf Pagination example</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css"/>
+    <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+          integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+          referrerpolicy="no-referrer" rel="stylesheet"/>
+    <script th:src="@{/webjars/jquery/jquery.min.js}" type="text/javascript"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}" type="text/javascript"></script>
+</head>
+
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container-fluid" style="max-width: 900px; margin: 0 auto;">
+    <h2 class="text-center">Tutorials</h2>
+
+    <div class="alert alert-success alert-dismissible fade show text-center message" role="alert"
+         th:if="${message != null}">
+        [[${message}]]
+        <button aria-label="Close" class="close btn-sm" data-dismiss="alert" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="my-3">
+        <form id="searchForm" th:action="@{/tutorials}">
+            <div class="row d-flex">
+                <div class="col-md-6 mt-2">
+                    <div class="search">
+                        <i class="fa fa-search"></i>
+                        <input class="form-control" id="keyword" name="keyword" placeholder="Enter keyword" required
+                               th:value="${keyword}"
+                               type="search">
+                        <button class="btn btn-secondary" type="submit">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-3 input-group mt-2">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="pageSize">Items per page:</label>
+                    </div>
+                    <select class="size-select" form="searchForm" id="pageSize" name="size"
+                            onchange="changePageSize()"
+                            th:value="${pageSize}">
+                        <option th:each="s : ${ {3, 6, 9} }" th:selected="${s == pageSize}" th:text="${s}"
+                                th:value="${s}"></option>
+                    </select>
+                </div>
+                <div class="col-md-1 mt-2">
+                    <button class="btn btn-info" id="btnClear">Clear</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div th:if="${tutorials.size() > 0}">
+        <table class="table table-hover table-responsive-xl">
+            <thead class="thead-light">
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Title</th>
+                <th scope="col">Description</th>
+                <th scope="col">Level</th>
+                <th scope="col">Published</th>
+                <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="tutorial : ${tutorials}">
+                <th scope="row">[[${tutorial.id}]]</th>
+                <td>[[${tutorial.title}]]</td>
+                <td>[[${tutorial.description}]]</td>
+                <td>[[${tutorial.level}]]</td>
+                <td>
+                    <a class="fa-regular fa-square-check" th:href="@{'/tutorials/' + ${tutorial.id} + '/published/false'}"
+                       th:if="${tutorial.published == true}"
+                       title="Disable this tutorial"></a>
+                    <a class="fa-regular fa-square icon-dark" th:href="@{'/tutorials/' + ${tutorial.id} + '/published/true'}"
+                       th:if="${tutorial.published == false}" title="Enable this tutorial"></a>
+                </td>
+                <td>
+                    <a class="fa-regular fa-pen-to-square icon-dark" th:href="@{'/tutorials/' + ${tutorial.id}}"
+                       title="Edit this tutorial"></a>
+                    &nbsp;
+                    <a class="fa-regular fa-trash-can icon-dark btn-delete" id="btnDelete"
+                       th:href="@{'/tutorials/delete/' + ${tutorial.id}}"
+                       th:tutorialTitle="${tutorial.title}" title="Delete this tutorial"></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:unless="${tutorials.size() > 0}">
+        <span>No tutorials found!</span>
+    </div>
+
+    <nav aria-label="Pagination" th:if="${totalPages > 0}">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a th:replace="fragments/paging :: paging(1, '<<', 'First Page')"></a>
+            </li>
+            <li class="page-item font-weight-bold" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a th:replace="fragments/paging :: paging(${currentPage - 1}, 'Prev', 'Previous Page')"></a>
+            </li>
+            <li class="page-item disabled" th:if="${currentPage - 2 > 1}">
+                <a class="page-link" href="#">...</a>
+            </li>
+            <li class="page-item" th:classappend="${page == currentPage} ? 'active'"
+                th:each="page : ${#numbers.sequence(currentPage > 2 ? currentPage - 2 : 1, currentPage + 2 < totalPages ? currentPage + 2 : totalPages)}">
+                <a th:replace="fragments/paging :: paging(${page}, ${page}, 'Page ' + ${page})"></a>
+            </li>
+            <li class="page-item disabled" th:if="${currentPage + 2 < totalPages}">
+                <a class="page-link" href="#">...</a>
+            </li>
+            <li class="page-item font-weight-bold" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a th:replace="fragments/paging :: paging(${currentPage + 1},'Next', 'Next Page')"></a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a th:replace="fragments/paging :: paging(${totalPages}, '>>', 'Last Page')"></a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div class="modal fade text-center" id="confirmModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Confirmation</h5>
+                <button class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <span id="confirmText"></span>
+            </div>
+
+            <div class="modal-footer">
+                <a class="btn btn-danger" id="yesBtn" type="button">Yes</a>
+                <button class="btn btn-secondary" data-dismiss="modal" type="button">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".btn-delete").on("click", function (e) {
+            e.preventDefault();
+            link = $(this);
+
+            tutorialTitle = link.attr("tutorialTitle");
+            $("#yesBtn").attr("href", link.attr("href"));
+            $("#confirmText").html("Do you want to delete the Tutorial \<strong\>" + tutorialTitle + "\<\/strong\>?");
+            $("#confirmModal").modal();
+        });
+
+        $("#btnClear").on("click", function (e) {
+            e.preventDefault();
+            $("#keyword").text("");
+            window.location = "[[@{/tutorials}]]";
+        });
+    });
+
+    function changePageSize() {
+        $("#searchForm").submit();
+    }
+</script>
+</body>
+
+</html>
