@@ -30,3 +30,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local runtime files ###
+*.mv.db
+*.trace.db
+logs/
+.DS_Store
